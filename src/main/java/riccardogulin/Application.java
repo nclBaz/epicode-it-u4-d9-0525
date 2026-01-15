@@ -72,5 +72,66 @@ public class Application {
 
 		statsPerCity.forEach((city, stats) -> System.out.println("Città: " + city + ", " + stats));
 
+
+		System.out.println("************************************************** COMPARATORS ***************************************************");
+
+		// 1. Ordiniamo gli utenti per età crescente
+		List<User> sortedUsers = users.stream().sorted(Comparator.comparing(user -> user.getAge())).toList();
+		sortedUsers.forEach(user -> System.out.println(user));
+
+		// 2. Ordiniamo gli utenti per età decrescente
+		List<User> sortedUsersReverseOrder = users.stream().sorted(Comparator.comparing(User::getAge).reversed()).toList();
+		// se uso .reversed() non posso usare le lambda devo usare la sintassi con ::
+		sortedUsersReverseOrder.forEach(user -> System.out.println(user));
+
+		// 3. Ordiniamo gli utenti per cognome
+		List<User> sortedUsersBySurname = users.stream().sorted(Comparator.comparing(user -> user.getSurname())).toList();
+		sortedUsersBySurname.forEach(user -> System.out.println(user));
+
+		// 4. Ordiniamo per età e raggruppiamo per città
+		Map<String, List<User>> usersGroupedByCitySortedByAge = users.stream().sorted(Comparator.comparing(user -> user.getAge())).collect(Collectors.groupingBy(user -> user.getCity()));
+		usersGroupedByCitySortedByAge.forEach((city, userList) -> System.out.println("Città: " + city + ", " + userList));
+
+
+		System.out.println("************************************************** LIMIT ***************************************************");
+
+		// 1. Ottengo lista 10 utenti più vecchi
+		List<User> top10OldUsers = users.stream().sorted(Comparator.comparing(User::getAge).reversed()).limit(10).toList();
+		System.out.println(top10OldUsers);
+
+		System.out.println("************************************************** SKIP ***************************************************");
+		// 2. Ottengo la lista dei secondi 10 utenti più vecchi (dall'undicesimo al ventesimo)
+		List<User> other10OldUsers = users.stream().sorted(Comparator.comparing(User::getAge).reversed()).skip(10).limit(10).toList();
+		System.out.println(other10OldUsers);
+
+
+		System.out.println("************************************************** MAP TO ***************************************************");
+
+		// 1. Calcolo della somma delle età tramite map+reduce
+		int totalAges = users.stream().map(user -> user.getAge()).reduce(0, (partialSum, currentAge) -> partialSum + currentAge);
+		System.out.println("Somma tramite reduce: " + totalAges);
+
+		// 2. Calcolo della somma delle età tramite collect & summingInt
+		int totalAges2 = users.stream().collect(Collectors.summingInt(user -> user.getAge()));
+		System.out.println("Somma tramite summingInt: " + totalAges2);
+
+		// 3. Calcolo della somma delle età tramite mapToInt
+		int totalAges3 = users.stream().mapToInt(user -> user.getAge()).sum();
+		System.out.println("Somma tramite mapToInt: " + totalAges3);
+
+		// 4. Calcolo della media delle età tramite mapToInt
+		OptionalDouble average2 = users.stream().mapToInt(user -> user.getAge()).average();
+		if (average2.isPresent()) System.out.println("La media è: " + average2.getAsDouble());
+		else System.out.println("Non è stato possibile calcolare la media in quanto la lista è vuota!");
+
+		// 5. Calcolo dell'età massima tramite mapToInt
+		OptionalInt maxAge = users.stream().mapToInt(user -> user.getAge()).max();
+		if (maxAge.isPresent()) System.out.println("L'età massima è: " + maxAge.getAsInt());
+		else System.out.println("Non è stato possibile calcolare l'età massima in quanto la lista è vuota!");
+
+		// 6. Calcolo delle statistiche sull'età tramite mapToInt
+		IntSummaryStatistics stats = users.stream().mapToInt(user -> user.getAge()).summaryStatistics();
+		System.out.println(stats);
+
 	}
 }
